@@ -6,6 +6,10 @@
 
 [批量发压llm代码](https://github.com/yqqCheergo/LLM/blob/main/press_llm.py) 以及 [Prompt Engineering入门](https://zhuanlan.zhihu.com/p/1986512912500679791)
 
+#### Transformer
+
+[代码](https://github.com/yqqCheergo/LLM/tree/main/Transformer) 以及 [Transformer原理及Pytorch代码实现](https://zhuanlan.zhihu.com/p/604592800)
+
 #### GPT系列
 
 GPT-1/2/3：[代码](https://github.com/yqqCheergo/LLM/tree/main/GPT) 以及[【上】预训练语言模型之GPT系列 (GPT-1~3) 论文阅读及Pytorch实现](https://zhuanlan.zhihu.com/p/1959995101746034642)
