@@ -1,6 +1,9 @@
 import torch.nn as nn
+import torch
 
 # pos-wise Feed Forward Network 特征提取
+
+# Conv1d 写法
 class PoswiseFeedForwardNet(nn.Module):
     def __init__(self, d_model, d_ff):
         super(PoswiseFeedForwardNet, self).__init__()
@@ -16,3 +19,17 @@ class PoswiseFeedForwardNet(nn.Module):
         output = nn.ReLU()(self.conv1(inputs.transpose(1, 2)))
         output = self.conv2(output).transpose(1, 2)
         return self.layer_norm(output + residual)
+
+
+# # Linear 写法
+# class PoswiseFeedForwardNet(nn.Module):
+#     def __init__(self, d_model, d_ff):
+#         super(PoswiseFeedForwardNet, self).__init__()
+#         self.linear1 = nn.Linear(d_model, d_ff)
+#         self.linear2 = nn.Linear(d_ff, d_model)
+#         self.layer_norm = nn.LayerNorm(d_model)
+#
+#     def forward(self, inputs):
+#         residual = inputs     # inputs: [batch_size, len_q, d_model]
+#         output = self.linear2(torch.relu(self.linear1(inputs)))
+#         return self.layer_norm(output + residual)
