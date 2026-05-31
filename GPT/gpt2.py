@@ -47,7 +47,7 @@ class MultiHeadAttention(nn.Module):
 
 
 class PositionwiseFeedForward(nn.Module):
-    def __init__(self, d_model, d_ff, dropout):
+    def __init__(self, d_model, d_ff, dropout=0.1):
         super(PositionwiseFeedForward, self).__init__()
         self.fc1 = nn.Linear(d_model, d_ff)
         self.fc2 = nn.Linear(d_ff, d_model)
@@ -78,16 +78,17 @@ class DecoderLayer(nn.Module):
 
 
 class GPT2(nn.Module):
-    def __init__(self, vocab_size, d_model, num_heads, num_layers, max_seq_length, d_ff):
+    def __init__(self, vocab_size, d_model, num_heads, num_layers, max_seq_length, d_ff, dropout=0.1):
         super(GPT2, self).__init__()
         self.token_embeddings = nn.Embedding(vocab_size, d_model)
         self.position_embeddings = nn.Embedding(max_seq_length, d_model)
         self.decoder_layers = nn.ModuleList([
-            DecoderLayer(d_model, num_heads, d_ff) for _ in range(num_layers)
+            DecoderLayer(d_model, num_heads, d_ff, dropout) for _ in range(num_layers)
         ])
         self.fc = nn.Linear(d_model, vocab_size)
         self.max_seq_length = max_seq_length
         self.num_layers = num_layers
+        self.dropout = nn.Dropout(dropout)
         self._init_weights()
 
     def _init_weights(self):
@@ -115,7 +116,7 @@ class GPT2(nn.Module):
         token_embeds = self.token_embeddings(input_ids)
         position_embeds = self.position_embeddings(positions)
         embeddings = token_embeds + position_embeds
-
+        embeddings = self.dropout(embeddings)
         mask = torch.tril(torch.ones(seq_length, seq_length, device=input_ids.device)).unsqueeze(0).unsqueeze(0)
 
         x = embeddings

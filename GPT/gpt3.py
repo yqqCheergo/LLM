@@ -30,7 +30,7 @@ class SparseMultiHeadAttention(nn.Module):
 
         for i in range(seq_length):
             # 规则1：局部窗口 - 相对距离不超过k
-            start = max(0, i - self.local_window)  # 不能小于0
+            start = int(max(0, i - self.local_window))  # 不能小于0
             mask[i, start:i + 1] = 1  # 位置i可以看到从start到i的所有位置
 
             # 规则2：跨步连接 - 距离为k, 2k, 3k...
@@ -110,16 +110,17 @@ class DecoderLayer(nn.Module):
 
 
 class GPT3(nn.Module):
-    def __init__(self, vocab_size, d_model, num_heads, num_layers, max_seq_length, d_ff):
+    def __init__(self, vocab_size, d_model, num_heads, num_layers, max_seq_length, d_ff, dropout=0.1):
         super(GPT3, self).__init__()
         self.token_embeddings = nn.Embedding(vocab_size, d_model)
         self.position_embeddings = nn.Embedding(max_seq_length, d_model)
         self.decoder_layers = nn.ModuleList([
-            DecoderLayer(d_model, num_heads, d_ff) for _ in range(num_layers)
+            DecoderLayer(d_model, num_heads, d_ff, dropout) for _ in range(num_layers)
         ])
         self.fc = nn.Linear(d_model, vocab_size)
         self.max_seq_length = max_seq_length
         self.num_layers = num_layers
+        self.dropout = nn.Dropout(dropout)
         self._init_weights()
 
     def _init_weights(self):
@@ -147,7 +148,7 @@ class GPT3(nn.Module):
         token_embeds = self.token_embeddings(input_ids)
         position_embeds = self.position_embeddings(positions)
         embeddings = token_embeds + position_embeds
-
+        embeddings = self.dropout(embeddings)
         mask = torch.tril(torch.ones(seq_length, seq_length, device=input_ids.device)).unsqueeze(0).unsqueeze(0)
 
         x = embeddings
